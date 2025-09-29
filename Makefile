@@ -10,6 +10,8 @@ GXX	   = g++ $(CXXFLAGS)
 
 a11: sobol 5630start 3630start
 
+ndcrescent: ndcrescent.cpp
+	$(GXX) $(CXXFLAGS) -o ndcrescent ndcrescent.cpp $(LDFLAGS)
 
 sobol: sobol.cpp 
 	$(GXX) $(CXXFLAGS) -o sobol sobol.cpp $(LDFLAGS)
