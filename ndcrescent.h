@@ -10,18 +10,22 @@
 #include "TGClient.h"
 #include "TStyle.h"
 #include <cmath>
+#include <vector>
 
 // print a dim dimensional vector
-void print_vec(int dim, double vec[]);
+void print_vec(int dim, std::vector<double>& v);
 
 // scale double vector in place
-void scale_vec(int dim, double* vec, double scale);
+void scale_vec(int dim, std::vector<double>& v, double scale);
 
 // calculate the magnitude of a double vector
-double vector_mag(int dim, double vec[]);
+double vector_mag(int dim, std::vector<double>& v);
 
 // check if a vector defined off the origin is inside a sphere offset from the origin
-bool check_inside(int dim, double vec[], double r, double offset);
+bool check_inside(int dim, std::vector<double>& v, double r, double offset);
+
+// add array vec2 to vec1 in place (modify vec1)
+void add_vec(int dim, std::vector<double>& v1, std::vector<double>& v2);
 
 // do monte carlo integration for two d-spheres - return p, the final volume, and std dev
-double* monte_volume(int d, int N, double r1, double r2, double a);
+std::vector<double> monte_volume(int d, int N, double r1, double r2, double a);
