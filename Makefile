@@ -10,8 +10,8 @@ GXX	   = g++ $(CXXFLAGS)
 
 a11: sobol 5630start 3630start
 
-ndcrescent_plotting: ndcrescent_plotting.cpp
-	$(GXX) $(CXXFLAGS) -o ndcrescent_plotting ndcrescent_plotting.cpp $(LDFLAGS)
+ndcrescent_plotting: ndcrescent_plotting.cpp ndcrescent.cpp
+	$(GXX) $(CXXFLAGS) -o ndcrescent_plotting ndcrescent_plotting.cpp ndcrescent.cpp $(LDFLAGS)
 
 ndcrescent: ndcrescent.cpp
 	$(GXX) $(CXXFLAGS) -o ndcrescent ndcrescent.cpp $(LDFLAGS)
