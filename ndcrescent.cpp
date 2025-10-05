@@ -56,6 +56,7 @@ std::vector<double> monte_volume(int d, int N, double r1, double r2, double a) {
     double box_volume = std::pow(box_length, 1.*d); // volume of the box
     // std::cout << "Box Volume: " << box_volume << std::endl;
     int num_inside = 0; // count how many random points land inside both spheres
+    double stdev; // standard deviation of the points inside spheres
 
     double sum_magsq = 0.0; // sum of the magnitude squared of all randomly generated vectors inside both spheres
     std::vector<double> sum_pos(d, 0.0); // vector which is the sum of all random vector components inside both spheres
@@ -88,11 +89,17 @@ std::vector<double> monte_volume(int d, int N, double r1, double r2, double a) {
         // std::cout<<d_rand_mag<<std::endl;
     }
 
-    // calculate average vector
-    for (int j=0; j<d; ++j){
-        sum_pos[j] = sum_pos[j]/(1.* num_inside);
+    if (num_inside <= 1) {
+        stdev = 0.0;
+    } else {
+        // calculate average vector
+        for (int j=0; j<d; ++j){
+            sum_pos[j] = sum_pos[j]/(1.* num_inside);
+        }
+        double exp_pos_sqr = std::pow(vector_mag(d, sum_pos), 2); // magnituded squared of average vector inside both spheres
+        stdev = std::pow((sum_magsq/(1.*num_inside) - exp_pos_sqr), 0.5) / std::pow(num_inside-1, 0.5); // standard deviation in points generated inside both spheres
     }
-    double exp_pos_sqr = std::pow(vector_mag(d, sum_pos), 2); // magnituded squared of average vector inside both spheres
+    
 
     // std::cout<<"n_inside: "<<num_inside<<std::endl;
     double p = num_inside/(N*1.);
@@ -101,9 +108,8 @@ std::vector<double> monte_volume(int d, int N, double r1, double r2, double a) {
     // std::cout<<"Volume: "<<volume<<std::endl;
     // std::cout<<"\n"<<std::endl;
     // std::cout<<"mag sqr sum "<<sum_magsq<<std::endl;
-
-    double stdev = std::pow((sum_magsq/(1.*num_inside) - exp_pos_sqr), 0.5) / std::pow(num_inside, 0.5); // standard deviation in points generated inside both spheres
-    stdev = stdev * (box_volume / N); // scale this standard error by the total box volume divided by total number of points generated
+    
+    // stdev = stdev * (box_volume / N); // scale this standard error by the total box volume divided by total number of points generated
     // std::cout<<"std dev: "<<stdev<<std::endl;
     std::vector<double> results(3);
     results[0] = p;
