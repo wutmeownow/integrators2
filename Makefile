@@ -10,6 +10,9 @@ GXX	   = g++ $(CXXFLAGS)
 
 a11: sobol 5630start 3630start
 
+sphere_5D: sphere_5D.cpp
+	$(GXX) $(CXXFLAGS) -o sphere_5D sphere_5D.cpp $(LDFLAGS)
+
 ndcrescent_plotting: ndcrescent_plotting.cpp ndcrescent.cpp
 	$(GXX) $(CXXFLAGS) -o ndcrescent_plotting ndcrescent_plotting.cpp ndcrescent.cpp $(LDFLAGS)
 
