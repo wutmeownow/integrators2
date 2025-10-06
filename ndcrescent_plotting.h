@@ -1,5 +1,6 @@
 #include "ndcrescent.h"
 #include "TGraph.h"
+#include "TGraphErrors.h"
 #include "TApplication.h"
 #include "TROOT.h"
 #include "TH2F.h"

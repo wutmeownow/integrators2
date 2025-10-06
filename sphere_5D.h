@@ -1,6 +1,12 @@
 #include <iostream>
 #include <cstdlib> // For std::atoi and std::atof
 #include "Math/QuasiRandom.h"
+#include "TRandom3.h"
+#include "TGraph.h"
+#include "TCanvas.h"
+#include "TAxis.h"
+#include "TLegend.h"
+#include "TH1F.h"
 #include <cassert>
 #include <cmath>
 #include <vector>

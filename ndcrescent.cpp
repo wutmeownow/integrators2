@@ -58,8 +58,6 @@ std::vector<double> monte_volume(int d, int N, double r1, double r2, double a) {
     int num_inside = 0; // count how many random points land inside both spheres
     double stdev; // standard deviation of the points inside spheres
 
-    double sum_magsq = 0.0; // sum of the magnitude squared of all randomly generated vectors inside both spheres
-    std::vector<double> sum_pos(d, 0.0); // vector which is the sum of all random vector components inside both spheres
     // print_vec(d, sum_pos);
 
     double rand_mag;
@@ -78,31 +76,21 @@ std::vector<double> monte_volume(int d, int N, double r1, double r2, double a) {
             // std::cout<<"Inside"<<std::endl;
             num_inside++;
 
-                    // add magnitude squared of this vector to d_rand_mag_sum
-            sum_magsq += std::pow(rand_mag, 2.0);
-
-            // add d_rand components to d_rand_sum array
-            add_vec(d, sum_pos, rand_pos);
             // print_vec(d, d_rand_sum);
         }
         // print_vec(d, d_rand);
         // std::cout<<d_rand_mag<<std::endl;
     }
 
-    if (num_inside <= 1) {
-        stdev = 0.0;
-    } else {
-        // calculate average vector
-        for (int j=0; j<d; ++j){
-            sum_pos[j] = sum_pos[j]/(1.* num_inside);
-        }
-        double exp_pos_sqr = std::pow(vector_mag(d, sum_pos), 2); // magnituded squared of average vector inside both spheres
-        stdev = std::pow((sum_magsq/(1.*num_inside) - exp_pos_sqr), 0.5) / std::pow(num_inside-1, 0.5); // standard deviation in points generated inside both spheres
-    }
+    double p = num_inside/(N*1.);
+
+ 
+    stdev = std::sqrt(1.*(num_inside - N * p * p)/(N-1)); // standard deviation in points generated inside both spheres
+    stdev = box_volume * (stdev / std::sqrt(N)); // error
     
 
     // std::cout<<"n_inside: "<<num_inside<<std::endl;
-    double p = num_inside/(N*1.);
+    
     // std::cout<<"p: "<<p<<std::endl;
     double volume = p*box_volume;
     // std::cout<<"Volume: "<<volume<<std::endl;
