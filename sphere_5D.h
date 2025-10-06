@@ -5,6 +5,19 @@
 #include <cmath>
 #include <vector>
 
+
+void scale_vec(int dim, std::vector<double>& v, double scale);
+
+double vector_mag(int dim, std::vector<double>& v);
+
+bool check_inside(int dim, std::vector<double>& v, double r);
+
+void add_vec(int dim, std::vector<double>& v1, std::vector<double>& v2);
+
+int uni_loop(int dim, long int n_axis, int axis, double r, double incr, std::vector<double>& pos);
+
+std::vector<double> uniform_mc(int dim, int N, int r, int n_axis);
+
 // helper functions to print vectors
 namespace helpers {
 
