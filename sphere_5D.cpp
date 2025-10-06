@@ -68,12 +68,18 @@ std::vector<double> uniform_mc(int dim, long int N, int r, long int n_axis) {
     double axis_incr = box_length/(n_axis-1); // amount to increment along each axis to hit N points inside box
     std::cout<<"axis incr: "<<axis_incr<<std::endl;
     double box_volume = std::pow(box_length, 1.*dim);
+    double std_dev = 0.0; // standard deviation
 
     int N_inside= uni_loop(dim, n_axis, 0, r, axis_incr, uniform_pos);
 
     double p = (1.*N_inside)/N;
     double volume = p * box_volume;
-    std_dev = std::sqrt(1.*(N_inside - N * p * p)/(N-1));
+    if (N_inside < 1) {
+        std_dev = 1.0;
+    } else {
+        std_dev = std::sqrt(1.*(N_inside - N * p * p)/(N-1));
+        std_dev = (1/p) * (std_dev / std::sqrt(N)); // relative error
+    }
     results[0] = volume;
     results[1] = std_dev;
     return results;
@@ -86,6 +92,7 @@ std::vector<double> quasi_mc(int dim, long int N, int r) {
     double box_length = 2.*r; // length of box to surround the 5d sphere
     double box_volume = std::pow(box_length, 1.*dim); // volume of 5d box
     long int N_inside = 0; // count of points that land inside sphere
+    double std_dev = 0.0; // standard deviation
 
     QuasiRandomSobol sobol_rng(dim); // sobol quasi random number generator in dim dimensions
 
@@ -100,7 +107,12 @@ std::vector<double> quasi_mc(int dim, long int N, int r) {
 
     double p = (1.*N_inside)/N;
     double volume = p * box_volume;
-    std_dev = std::sqrt(1.*(N_inside - N * p * p)/(N-1));
+    if (N_inside < 1) {
+        std_dev = 1.0;
+    } else {
+        std_dev = std::sqrt(1.*(N_inside - N * p * p)/(N-1));
+        std_dev = (1/p) * (std_dev / std::sqrt(N)); // relative error
+    }
     results[0] = volume;
     results[1] = std_dev;
     return results;
@@ -127,7 +139,12 @@ std::vector<double> pseudo_mc(int dim, long int N, int r) {
     }
     double p = (1.*N_inside)/N;
     double volume = p * box_volume;
-    std_dev = std::sqrt(1.*(N_inside - N * p * p)/(N-1));
+    if (N_inside < 1) {
+        std_dev = 1.0;
+    } else {
+        std_dev = std::sqrt(1.*(N_inside - N * p * p)/(N-1));
+        std_dev = (1/p) * (std_dev / std::sqrt(N)); // relative error
+    }
     results[0] = volume;
     results[1] = std_dev;
     return results;
@@ -185,18 +202,21 @@ int main(int argc, char* argv[]) {
         volume_uni[i-lower_pow] = results[0];
         std_dev_uni[i-lower_pow] = results[1];
         std::cout<<"Uniform Volume: "<<results[0]<<std::endl;
+        std::cout<<"Uniform Rel Error: "<<results[1]<<std::endl;
 
         // quasi random distr
         results = quasi_mc(d, N, r);
         volume_quasi[i-lower_pow] = results[0];
         std_dev_quasi[i-lower_pow] = results[1];
         std::cout<<"Quasi Volume: "<<results[0]<<std::endl;
+        std::cout<<"Quasi Rel Error: "<<results[1]<<std::endl;
 
         // pseudo random distr
         results = pseudo_mc(d, N, r);
         volume_pseudo[i-lower_pow] = results[0];
         std_dev_pseudo[i-lower_pow] = results[1];
-        std::cout<<"Pseudo Volume: "<<results[0]<<"\n"<<std::endl;
+        std::cout<<"Pseudo Volume: "<<results[0]<<std::endl;
+        std::cout<<"Pseudo Rel Error: "<<results[1]<<"\n"<<std::endl;
 
     }
 
@@ -240,41 +260,44 @@ int main(int argc, char* argv[]) {
     // canvas->cd(1)->SetLogy();
     canvas->cd(1)->SetLogx();
 
-    // canvas->cd(4);
-    // auto graph_10D_err = new TGraph(19,n_points_sqrt.data(),vol_err_10D.data());
-    // graph_10D_err->SetTitle(";sqrt(N);Error");
-    // graph_10D_err->Draw();
-    // canvas->cd(4)->SetLogy();
-    // canvas->cd(4)->SetLogx();
 
-    // // 5D plots
-    // canvas->cd(2);
-    // auto graph_5D = new TGraph(19,n_points_sqrt.data(),volume_5D.data());
-    // graph_5D->SetTitle("5D Spheres;sqrt(N);Volume Shared");
-    // graph_5D->Draw();
-    // // canvas->cd(2)->SetLogy();
-    // canvas->cd(2)->SetLogx();
+    // relative error plot
+    canvas->cd(2);
+    auto frame2 = gPad->DrawFrame(0.,0.5 * std_dev_quasi.back(),n_points_sqrt.back()*10,1.1);
+    frame2->GetXaxis()->SetTitle("sqrt(N)");
+    frame2->GetYaxis()->SetTitle("Rel Error");
+    auto graph_uni_err = new TGraph(n_trials,n_points_sqrt_uni.data(),std_dev_uni.data());
+    graph_uni_err->SetTitle("Relative error;sqrt(N);Volume");
+    graph_uni_err->SetMarkerStyle(7);
+    graph_uni_err->SetMarkerColor(2);
+    
 
-    // canvas->cd(5);
-    // auto graph_5D_err = new TGraph(19,n_points_sqrt.data(),vol_err_5D.data());
-    // graph_5D_err->SetTitle(";sqrt(N);Std Dev");
-    // graph_5D_err->Draw();
-    // canvas->cd(5)->SetLogy();
-    // canvas->cd(5)->SetLogx();
+    auto graph_quasi_err = new TGraph(n_trials,n_points_sqrt.data(),std_dev_quasi.data());
+    // graph_quasi_vol->SetTitle("Volume;sqrt(N);Volume");
+    graph_quasi_err->SetMarkerStyle(7);
+    graph_quasi_err->SetMarkerColor(4);
+    
 
-    // // 3D plots
-    // canvas->cd(3);
-    // auto graph_3D = new TGraph(19,n_points_sqrt.data(),volume_3D.data());
-    // graph_3D->SetTitle("3D Spheres;sqrt(N);Volume Shared");
-    // graph_3D->Draw();
-    // canvas->cd(3)->SetLogx();
+    auto graph_pseudo_err = new TGraph(n_trials,n_points_sqrt.data(),std_dev_pseudo.data());
+    // graph_quasi_vol->SetTitle("Volume;sqrt(N);Volume");
+    graph_pseudo_err->SetMarkerStyle(7);
+    graph_pseudo_err->SetMarkerColor(3);
 
-    // canvas->cd(6);
-    // auto graph_3D_err = new TGraph(19,n_points_sqrt.data(),vol_err_3D.data());
-    // graph_3D_err->SetTitle(";sqrt(N);Std Dev");
-    // graph_3D_err->Draw();
-    // canvas->cd(6)->SetLogy();
-    // canvas->cd(6)->SetLogx();
+    graph_uni_err->Draw("cp");
+    graph_quasi_err->Draw("cp");
+    graph_pseudo_err->Draw("cp");
+
+    auto legend2 = new TLegend(0.2,0.4,0.4,0.6);
+    legend2->AddEntry(graph_uni_vol,"Uniform");
+    legend2->AddEntry(graph_quasi_vol,"Quasi");
+    legend2->AddEntry(graph_pseudo_vol,"Pseudo");
+    // legend->SetHeader("Legend");
+    legend2->Draw();
+
+    canvas->cd(2)->SetLogy();
+    canvas->cd(2)->SetLogx();
+
+    
 
     canvas->SaveAs("methods.png");
     return 0; // Exit successfully
